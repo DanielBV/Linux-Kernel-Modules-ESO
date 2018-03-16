@@ -15,7 +15,7 @@
 #define DESCRIPTION "Generates a proc file that prints the name, pid and scheduling policy of every process"
 #define LICENSE  "GPL"
 #define VERSION "0.00000001"
-#define ITERABLE_ARRAY_SIZE 100
+
 
  static struct proc_dir_entry* proc_file;
  
