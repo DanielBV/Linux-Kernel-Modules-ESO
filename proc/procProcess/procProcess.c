@@ -20,11 +20,26 @@
  static struct proc_dir_entry* proc_file;
  
   void * myseq_start (struct seq_file *m, loff_t *pos){
-     // p = &init_task ; (p = next_task(p)) != &init_task ;
-   
-      if (*pos!=0) // To avoid infinite loop, as offset isn't checked
+      printk("Sequence started offset: %lld",*pos);
+      int i;
+      struct task_struct *init;
+
+      init = &init_task;
+
+      if (*pos<0)
         return NULL;
-      return &init_task;
+
+      for (i=0;i<*pos;i++){
+          init = next_task(init);
+          if (init == &init_task){
+               printk("End of sequence in myseq_start, offset: %lld",*pos);
+               return NULL;
+
+          }
+      }
+
+
+      return init;
      
   }
 
@@ -42,14 +57,14 @@
 
 static void myseq_stop(struct seq_file *s, void *v)
 {
-    printk("Sequence file stopped");
+    printk("Sequence stopped");
     
 }
 static int myseq_show(struct seq_file *s, void *v)
 {
     struct task_struct *task =(struct task_struct*) v;
 
-    seq_printf(s,"%s:  pid=[%d] state = [%d] \n", task->comm, task->pid,task->policy);
+    seq_printf(s,"%s:  pid=[%d] policy = [%d] \n", task->comm, task->pid,task->policy);
     return 0;
 }
 
