@@ -18,9 +18,10 @@
  * 
  *  The objective of the module is to allow processes to get keyboard input from anywhere, like input() in python but not bound to the shell.
  * 
- *  The module is designed for Intel Architectures. Also it doesn't support concurrent process :(. 
+ *  The module is designed for Intel Architectures and a Spanish keyboard. Also it doesn't support concurrent process :(. 
  * 
  */
+
 
 
 DECLARE_WAIT_QUEUE_HEAD(wait_queue);
@@ -35,7 +36,7 @@ DECLARE_WAIT_QUEUE_HEAD(wait_queue);
 #define AUTHOR  "Daniel Bazaco"
 #define DESCRIPTION "Creates a char device that reads keyboard input for a process from anywhere, until the user presses Ente (Not working yet)r"
 #define LICENSE  "GPL"
-#define VERSION "0.1"
+#define VERSION "0.3"
 
 // The key with max scancode is E1D1 (in Spanish Keyboard: http://www.kbdlayout.info/KBDSP/scancodes)
 // The decimal value is 57629 (5 characters max + \n character)
@@ -56,7 +57,8 @@ static int ready_to_read = 0;
 static char scancode;
 static dev_t deviceNumber; 
 static struct cdev charDev; 
-static struct class *cl; 
+static struct class *cl;
+
 
 char * strcat(char *dest, const char *src)
 {
@@ -69,12 +71,11 @@ char * strcat(char *dest, const char *src)
     return dest;
 }
 
-static irqreturn_t kbd_handler(int irq, void *dev_id)
-{
-    if (file_opened){
+static void process_char( unsigned long data ){
+
 
         char tempChar[6];
-        scancode = inb(KBD_DATA_REG);
+       
 
         if ( !(scancode & KBD_STATUS_MASK) ){
 
@@ -97,6 +98,19 @@ static irqreturn_t kbd_handler(int irq, void *dev_id)
         wake_up_interruptible(&wait_queue); /* awake any reading process */
 
         }
+    
+  
+}
+ DECLARE_TASKLET( char_tasklet, process_char, 
+         NULL );
+ 
+static irqreturn_t kbd_handler(int irq, void *dev_id)
+{
+    if (file_opened){
+
+      
+        scancode = inb(KBD_DATA_REG);
+        tasklet_schedule(&char_tasklet);
     }
     return IRQ_HANDLED;
 }
@@ -154,7 +168,8 @@ static int my_open(struct inode *i, struct file *f){
   .read = my_read,
 
 };
- 
+
+
 static int __init kinput_init(void){
     if (alloc_chrdev_region(&deviceNumber, 0, 1, DRIVER_NAME) < 0)
       return -1;
@@ -186,8 +201,10 @@ static int __init kinput_init(void){
  
   return 0;
 }
- 
+
+
 static void __exit kinput_exit(void) {
+    tasklet_kill(&char_tasklet);
     free_irq(KBD_IRQ, (void *)kbd_handler);
     cdev_del(&charDev);
     device_destroy(cl, deviceNumber);
