@@ -14,7 +14,7 @@ def main():
     
     
     test = file.read()
-    print("TODO ES:" , test.split())
+  
     for line in test.split():
            
             if line.strip() != "" :

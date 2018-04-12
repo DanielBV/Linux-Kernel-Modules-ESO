@@ -18,7 +18,7 @@
  * 
  *  The objective of the module is to allow processes to get keyboard input from anywhere, like input() in python but not bound to the shell.
  * 
- *  The module is designed for Intel Architectures and a Spanish keyboard. Also it doesn't support concurrent process :(. 
+ *  The module is designed for Intel Architectures. Also it doesn't support concurrent process :(. 
  * 
  */
 
@@ -36,7 +36,7 @@ DECLARE_WAIT_QUEUE_HEAD(wait_queue);
 #define AUTHOR  "Daniel Bazaco"
 #define DESCRIPTION "Creates a char device that reads keyboard input for a process from anywhere, until the user presses Ente (Not working yet)r"
 #define LICENSE  "GPL"
-#define VERSION "0.3"
+#define VERSION "0.4"
 
 // The key with max scancode is E1D1 (in Spanish Keyboard: http://www.kbdlayout.info/KBDSP/scancodes)
 // The decimal value is 57629 (5 characters max + \n character)
@@ -96,7 +96,7 @@ static void process_char( unsigned long data ){
         printk("Buffer Full or Enter pressed");
         ready_to_read = 1;
         wake_up_interruptible(&wait_queue); /* awake any reading process */
-
+      
         }
     
   
@@ -111,6 +111,7 @@ static irqreturn_t kbd_handler(int irq, void *dev_id)
       
         scancode = inb(KBD_DATA_REG);
         tasklet_schedule(&char_tasklet);
+      
     }
     return IRQ_HANDLED;
 }
@@ -128,25 +129,19 @@ static int my_open(struct inode *i, struct file *f){
   len, loff_t *off){
     
     int bytes_read = 0;
- 
+    printk("El proceso ha empezado a ejecutar read");
     if (end_read){
         end_read =0;
         return 0;
     }
 
     file_opened = 1;
-     
-    DEFINE_WAIT(wait);
-    while (!ready_to_read) {
-      
-        prepare_to_wait(&wait_queue, &wait, TASK_INTERRUPTIBLE);
-        if (!ready_to_read)
-           schedule();
-           
-          finish_wait(&wait_queue, &wait);
-    }
-
   
+    while (!ready_to_read) {
+         wait_event_interruptible(wait_queue,ready_to_read);
+         printk("Process woken, ready_to_read %d",ready_to_read);
+    }
+       
     bytes_read = strlen(msg); 
     copy_to_user(buffer, msg, bytes_read); // Assumes that the buffer len is big enough
 
