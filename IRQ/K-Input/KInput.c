@@ -13,12 +13,19 @@
  *  K-Input Kernel Module  
  *  
  *  K-Input creates a char device in /dev/KInput. When the file is read, the process is set to sleep until the user presses Enter or the buffer is full.
- *  The buffer stores the scancode of the keyboard keys pressed by the user, separated by an end of line (\n).
+ *  The buffer stores the keyInput of the keyboard keys pressed by the user, separated by an end of line (\n).
  *  When the process if awoken, it will read the buffer. 
  * 
  *  The objective of the module is to allow processes to get keyboard input from anywhere, like input() in python but not bound to the shell.
  * 
  *  The module is designed for Intel Architectures. Also it doesn't support concurrent process :(. 
+ * 
+ *  Special Keys:
+ *  
+ *    - Left Shift released: Value 99999
+ *    - Right Shift released: Value 99998
+ * 
+ * 
  * 
  */
 
@@ -36,12 +43,12 @@ DECLARE_WAIT_QUEUE_HEAD(wait_queue);
 #define AUTHOR  "Daniel Bazaco"
 #define DESCRIPTION "Creates a char device that reads keyboard input for a process from anywhere, until the user presses Ente (Not working yet)r"
 #define LICENSE  "GPL"
-#define VERSION "0.4"
+#define VERSION "0.5"
 
-// The key with max scancode is E1D1 (in Spanish Keyboard: http://www.kbdlayout.info/KBDSP/scancodes)
+// The key with max keyInput is E1D1 (in Spanish Keyboard: http://www.kbdlayout.info/KBDSP/keyInputs)
 // The decimal value is 57629 (5 characters max + \n character)
 #define MAX_LEN_CHAR 6 
-#define BUF_MIN_CHARACTERS 10 //Minimum chars that the buffer can hold. Depending on the length of the scancodes can be higher.
+#define BUF_MIN_CHARACTERS 10 //Minimum chars that the buffer can hold. Depending on the length of the keyInputs can be higher.
 #define EXTRA 20 +1 // +1 from \0
 
 #define BUF_LEN BUF_MIN_CHARACTERS*MAX_LEN_CHAR  
@@ -54,7 +61,7 @@ static int end_read =0;
 static int file_opened = 0;
 static int ready_to_read = 0;
 
-static char scancode;
+static char keyInput;
 static dev_t deviceNumber; 
 static struct cdev charDev; 
 static struct class *cl;
@@ -75,23 +82,45 @@ static void process_char( unsigned long data ){
 
 
         char tempChar[6];
-       
+        int printRelease = 0;
 
-        if ( !(scancode & KBD_STATUS_MASK) ){
+        int key_status = keyInput & KBD_STATUS_MASK; // True = Key released. False = Key pressed
+        int scancode = keyInput & KBD_SCANCODE_MASK;
 
+        if ( !(key_status) ){
+            // Key pressed
            
             if (strlen(msg)<BUF_LEN){
-                  sprintf(tempChar,"%d",(int)(scancode& KBD_SCANCODE_MASK));
+                  sprintf(tempChar,"%d",(int)(scancode));
                   strcat(msg,tempChar);
                   strcat(msg, "\n") ;
             }
         }
+        if (key_status){
+            //Key released
 
-        pr_info("Scan Code %x %s : %d\n",
-            scancode & KBD_SCANCODE_MASK,
-            scancode & KBD_STATUS_MASK ? "Released" : "Pressed",scancode & KBD_SCANCODE_MASK);
+            if (scancode ==42){ // Left shift
+                printRelease = 99999;
+            }
+            if (scancode ==54){ //Right shift
+                printRelease = 99998;
+            }
 
-     if (strlen(msg)>=BUF_LEN || ( ( (scancode & KBD_SCANCODE_MASK)) ==28 &&   !(scancode & KBD_STATUS_MASK))){
+            if (printRelease){
+                sprintf(tempChar,"%d",printRelease);
+                strcat(msg,tempChar);
+                strcat(msg, "\n") ;
+            }
+          
+            
+
+        }
+
+        pr_info("Scan Code %x %s : %d  Otros: %d\n",
+          scancode,
+            key_status ? "Released" : "Pressed",scancode, key_status);
+
+     if (strlen(msg)>=BUF_LEN || (  (scancode==28) && !key_status  )){
 
         printk("Buffer Full or Enter pressed");
         ready_to_read = 1;
@@ -109,7 +138,7 @@ static irqreturn_t kbd_handler(int irq, void *dev_id)
     if (file_opened){
 
       
-        scancode = inb(KBD_DATA_REG);
+        keyInput = inb(KBD_DATA_REG);
         tasklet_schedule(&char_tasklet);
       
     }
@@ -129,7 +158,7 @@ static int my_open(struct inode *i, struct file *f){
   len, loff_t *off){
     
     int bytes_read = 0;
-    printk("El proceso ha empezado a ejecutar read");
+
     if (end_read){
         end_read =0;
         return 0;
