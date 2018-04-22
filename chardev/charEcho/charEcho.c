@@ -16,10 +16,10 @@
 
 #define BUF_LEN 102
 
-static int size_of_send_buffer = 0;
+
 
 static char msg[BUF_LEN];
-static char *msg_Ptr;
+
 
 
 static dev_t deviceNumber; 
@@ -27,11 +27,6 @@ static struct cdev charDev;
 static struct class *cl; 
 static int my_open(struct inode *i, struct file *f){
   
-	static int counter = 0;
-	
-	msg_Ptr = msg;
-	size_of_send_buffer  = strlen(msg_Ptr);
-
 	return 0;
 }
   static int my_close(struct inode *i, struct file *f){
@@ -39,19 +34,12 @@ static int my_open(struct inode *i, struct file *f){
 }
   static ssize_t my_read(struct file *f, char __user *buffer, size_t
   len, loff_t *off){
-    int bytes_read = 0;
-  
-    if (size_of_send_buffer==0)
-    /** Este método se ejecuta en bucle infinito hasta que devuelva 0, porque 
-     * el 0 marca el final el stream de datos, mientras que el return normal
-     * es el número de datos que se han enviado*/
-      return 0;
-      
-    copy_to_user(buffer, msg_Ptr, size_of_send_buffer);
-    bytes_read = size_of_send_buffer;
-    size_of_send_buffer=0;
-    return bytes_read;
 
+    int size_of_send_buffer  = strlen(msg);
+    copy_to_user(buffer, msg, size_of_send_buffer);
+    msg[0]='\0';
+    return size_of_send_buffer; 
+ 
 }
   static ssize_t my_write(struct file *f, const char __user *buffer,
   size_t len, loff_t *off)
