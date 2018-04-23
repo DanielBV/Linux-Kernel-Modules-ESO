@@ -47,11 +47,13 @@ static int my_open(struct inode *i, struct file *f){
   int min = len;
   if (min>100)
       min = 100;
-      msg[101] = '\n';
-      
+    
+  
+  
 
   copy_from_user(msg,buffer,min);
-  msg [min] ='\0';
+  msg[min] = '\n';
+  msg [min+1] ='\0';
 
   //Lies to the process, telling it that has read all the message.
   //But if the message is bigger than the buffer, only copies the buffer size
