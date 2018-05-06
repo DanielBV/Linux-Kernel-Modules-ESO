@@ -9,7 +9,7 @@
 #define DEVICE_NAME  "PROCPID"
 #define PROC_NAME "procpid"
 #define AUTHOR  "Daniel Bazaco"
-#define DESCRIPTION "Módulo muy complejo que crea un /proc que devuelve el PID del proceso en ejecución."
+#define DESCRIPTION "Módulo muy complejo que crea un /proc (/proc/procpid) que devuelve el PID del proceso en ejecución."
 #define LICENSE  "GPL"
 #define VERSION "0.00000001"
 /**

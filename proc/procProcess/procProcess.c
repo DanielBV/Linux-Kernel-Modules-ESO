@@ -12,7 +12,7 @@
 #define DEVICE_NAME  "Process Getter Proc"
 #define PROC_NAME "procProcess"
 #define AUTHOR  "Daniel Bazaco"
-#define DESCRIPTION "Generates a proc file that prints the name, pid and scheduling policy of every process"
+#define DESCRIPTION "Generates a proc file (/proc/procProcess) that prints the name, pid and scheduling policy of every process"
 #define LICENSE  "GPL"
 #define VERSION "0.00000001"
 

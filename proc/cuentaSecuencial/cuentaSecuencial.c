@@ -11,7 +11,7 @@
 #define DEVICE_NAME  "Sequence Counter"
 #define PROC_NAME "seqCount"
 #define AUTHOR  "Daniel Bazaco"
-#define DESCRIPTION "Generates a proc sequence file that counts from 0 to 99"
+#define DESCRIPTION "Generates a proc sequence file (/proc/seqCount) that counts from 0 to 99"
 #define LICENSE  "GPL"
 #define VERSION "0.00000001"
 #define ITERABLE_ARRAY_SIZE 100

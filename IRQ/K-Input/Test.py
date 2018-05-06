@@ -28,18 +28,15 @@ def toASCII(scancode:int):
         return "UNKNOWN"
 
 def main():
+    """
+    Reads one time the input of the user using the K-Input module
+    """
+
     file = open("/dev/Kinput","r")
-    
-   
-      
     test = file.read()
     
-
-
     for line in test.split():
-        
             if line.strip() != "" :
-            
                 print(toASCII(int(line.strip())),end='')
 
        

@@ -16,10 +16,20 @@
 #define CLASS_NAME "qb"
 #define AUTHOR  "Daniel Bazaco"
 #define DESCRIPTION "Changes the scheduling policy of every process that opens the device to FIFO."
-// By default the process will have 95% CPU use (http://linuxrealtime.org/index.php/Basic_Linux_from_a_Real-Time_Perspective#Real-Time_Throttling)
-// To get 100%, do:
-//                 sudo su
-//                 echo -1 > /proc/sys/kernel/sched_rt_runtime_us
+
+
+/**
+ *  Quantum Break kernel Module
+ *  
+ *  QuantumBreak creates a device in /dev/quantumBreak. It works just as charEcho module, but when the device is opened it changes the process' scheduling
+ *  policy to FIFO. This allows the process up to 95 % of CPU use () (http://linuxrealtime.org/index.php/Basic_Linux_from_a_Real-Time_Perspective#Real-Time_Throttling)
+ * 
+ *  In order to get 100% CPU use, the scheduler throttling can ve avoid by doing:
+ *                 sudo su
+ *                 echo -1 > /proc/sys/kernel/sched_rt_runtime_us
+ */
+
+ 
 #define LICENSE  "GPL"
 #define VERSION "0.00000001"
 

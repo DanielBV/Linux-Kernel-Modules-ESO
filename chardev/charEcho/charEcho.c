@@ -16,6 +16,12 @@
 
 #define BUF_LEN 102
 
+/**
+ *  CharEcho kernel Module
+ *  
+ *  charEcho creates a char device in /dev/CharEcho. Processes can write or read ithe device buffer. Lecture is destructive (when a buffer
+ *  reads the buffer, it is emptied)
+ */
 
 
 static char msg[BUF_LEN];
@@ -25,13 +31,7 @@ static char msg[BUF_LEN];
 static dev_t deviceNumber; 
 static struct cdev charDev; 
 static struct class *cl; 
-static int my_open(struct inode *i, struct file *f){
-  
-	return 0;
-}
-  static int my_close(struct inode *i, struct file *f){
-    return 0;
-}
+
   static ssize_t my_read(struct file *f, char __user *buffer, size_t
   len, loff_t *off){
 
@@ -47,23 +47,18 @@ static int my_open(struct inode *i, struct file *f){
   int min = len;
   if (min>100)
       min = 100;
-    
   
-  
-
   copy_from_user(msg,buffer,min);
   msg[min] = '\n';
   msg [min+1] ='\0';
 
   //Lies to the process, telling it that has read all the message.
-  //But if the message is bigger than the buffer, only copies the buffer size
+  //But if the message is bigger than the buffer, it only copies the buffer size
   return len;
 }
   static struct file_operations pugs_fops =
 {
   .owner = THIS_MODULE,
-  .open = my_open,
-  .release = my_close,
   .read = my_read,
   .write = my_write
 };

@@ -15,12 +15,7 @@ int main(int argc, char *argv[]){
         return -1;
     }
 
-    //sprintf(msg,argv[0]);
-    //sprintf(msg, "Nuevo mensaje para el buffer\n");
-
-
     fichero = fopen("/dev/CharEcho","w");
-
     fputs(argv[1], fichero);
 
     fclose(fichero);

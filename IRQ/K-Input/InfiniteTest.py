@@ -28,14 +28,16 @@ def toASCII(scancode:int):
         return "UNKNOWN"
 
 def main():
+    """
+    Reads the input of the user indefinitely (The only way to stop is to kill the process)
+    """
+
     file = open("/dev/Kinput","r")
     
+
     while(1):
       
         test = file.read()
-      
-    
-    
         for line in test.split():
             
                 if line.strip() != "" :
