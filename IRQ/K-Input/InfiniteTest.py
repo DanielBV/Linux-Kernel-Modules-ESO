@@ -30,19 +30,19 @@ def toASCII(scancode:int):
 def main():
     file = open("/dev/Kinput","r")
     
-   
+    while(1):
       
-    test = file.read()
+        test = file.read()
+      
     
-
-
-    for line in test.split():
-        
-            if line.strip() != "" :
+    
+        for line in test.split():
             
-                print(toASCII(int(line.strip())),end='')
+                if line.strip() != "" :
+                
+                    print(toASCII(int(line.strip())),end='')
 
-       
+        print()
                     
     file.close()
 
