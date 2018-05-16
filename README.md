@@ -2,13 +2,13 @@
 
 This repository contains the kernel modules I've done to learn how Linux modules work. This was part of a complementary project for the subject *Estructura de Sistemas Operativos* (Operating-System Structure).
 
-The modules where tested using Ubuntu 16.04.4 LTS and Linux version 4.13.0-39-generic 
+The modules were tested using Ubuntu 16.04.4 LTS with Linux version 4.13.0-39-generic, and Fedora 27 with Linux version 4.15.13-300 
 
 ## Contents
 
 #### Character Drivers 
 - `charEcho`: The device has a buffer that can be written or read by any process (The buffer is emptied when a process reads it)
-- `charQuantumBreak`: Module with the same functionality than charEcho, but when the device is opened, it changes the scheduling policy of the process to FIFO. (It is designed to give a process the full CPU to make the OS crash/slow down)
+- `charQuantumBreak`: Creates a device that, when opened, changes the scheduling policy of the process to FIFO. (It is designed to give a process the full CPU to make the OS crash/slow down)
 
 
 #### Proc Files
@@ -20,13 +20,16 @@ The modules where tested using Ubuntu 16.04.4 LTS and Linux version 4.13.0-39-ge
 - `K-Input`: Allows processes to get keyboard input from anywhere (not bound to the shell) using a Character device. 
 
 ## Requirements
-
-To compile the module you need the linux-headers build-essentials:
+* **Ubuntu**
 ```
 sudo apt-get install linux-headers-$(uname -r)
 ```
 ```
 sudo apt-get install build-essential
+```
+* **Fedora**
+```
+sudo dnf install make automake gcc gcc-c++ kernel-devel
 ```
 ## Building and loading a module
 
