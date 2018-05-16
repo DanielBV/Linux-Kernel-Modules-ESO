@@ -14,11 +14,11 @@ def toASCII(scancode:int):
     global shiftPressed
  
     if scancode in (99998,99999):
-         # Right of left shift released
+         # Right or left shift released
         shiftPressed = False
         return ""
     if scancode in (54,42):
-        # Right of left shift pressed
+        # Right or left shift pressed
         shiftPressed = True
         return ""
 

@@ -44,10 +44,8 @@ static struct class *cl;
   static ssize_t my_write(struct file *f, const char __user *buffer,
   size_t len, loff_t *off)
 {
-  int min = len;
-  if (min>100)
-      min = 100;
-  
+  int min = len>100 ?  100: len;
+ 
   copy_from_user(msg,buffer,min);
   msg[min] = '\n';
   msg [min+1] ='\0';

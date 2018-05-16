@@ -14,11 +14,11 @@ def toASCII(scancode:int):
     global shiftPressed
  
     if scancode in (99998,99999):
-         # Right of left shift released
+         # Right or left shift released
         shiftPressed = False
         return ""
     if scancode in (54,42):
-        # Right of left shift pressed
+        # Right or left shift pressed
         shiftPressed = True
         return ""
 
@@ -29,7 +29,8 @@ def toASCII(scancode:int):
 
 def main():
     """
-    Reads the input of the user indefinitely (The only way to stop is to kill the process)
+    Reads the input of the user indefinitely (The only way to stop is to kill the process. This migh cause the K-Input driver to enter a infinite
+    loop until the user presses Enter)
     """
 
     file = open("/dev/Kinput","r")
